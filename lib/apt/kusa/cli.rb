@@ -16,6 +16,7 @@ module Apt::Kusa
 
     option :all,   type: :boolean, default: false
     option :graph, type: :string,  required: true
+    option :create,type: :boolean, default: false
     desc "post", "Post to pixe.la"
     def post
       unless username = ENV["PIXELA_USER"]
@@ -30,10 +31,14 @@ module Apt::Kusa
       summary = parse_and_summarize
 
       client = Pixela::Client.new(username: username, token: token)
+      graph = client.graph(options[:graph])
+      if options[:create]
+        graph.create(name:"Count of package install/upgrade", unit:"commit", type:"int", color:"shibafu")
+      end
 
       summary.each do |date, count|
         q = count.to_a.select{|h| [:install,:upgrade].include?(h[0])}.inject(0) {|s,h| s+=h[1]}
-        client.graph(options[:graph]).pixel(Date.parse(date)).update(quantity: q)
+        graph.pixel(Date.parse(date)).update(quantity: q)
       end
     end
 
