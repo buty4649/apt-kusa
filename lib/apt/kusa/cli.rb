@@ -19,12 +19,12 @@ module Apt::Kusa
     option :create,type: :boolean, default: false
     desc "post", "Post to pixe.la"
     def post
-      unless username = ENV["PIXELA_USER"]
-        puts "Please set your $PIXELA_TOKEN"
+      unless username = ENV["PIXELA_USER_NAME"]
+        puts "Please set your $PIXELA_USER_NAME"
         exit
       end
-      unless token = ENV["PIXELA_TOKEN"]
-        puts "Please set your $PIXELA_TOKEN"
+      unless token = ENV["PIXELA_USER_TOKEN"]
+        puts "Please set your $PIXELA_USER_TOKEN"
         exit
       end
 
