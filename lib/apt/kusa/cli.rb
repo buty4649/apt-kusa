@@ -1,10 +1,13 @@
 require 'thor'
+require 'yaml'
 require 'zlib'
 require 'pixela'
 require 'apt/history'
 
 module Apt::Kusa
   class CLI < Thor
+    class_option :config, type: :string, default: File.join(Dir.home, ".apt-kusa")
+
     option :all, type: :boolean, default: false
     desc "summary", "Summarize history.log"
     def summary
@@ -19,12 +22,14 @@ module Apt::Kusa
     option :create,type: :boolean, default: false
     desc "post", "Post to pixe.la"
     def post
-      unless username = ENV["PIXELA_USER_NAME"]
-        puts "Please set your $PIXELA_USER_NAME"
+      config = load_config
+
+      unless username = ENV["PIXELA_USER_NAME"] || config['username']
+        puts "Please set your username."
         exit
       end
-      unless token = ENV["PIXELA_USER_TOKEN"]
-        puts "Please set your $PIXELA_USER_TOKEN"
+      unless token = ENV["PIXELA_USER_TOKEN"] || config['token']
+        puts "Please set your API token"
         exit
       end
 
@@ -48,6 +53,10 @@ module Apt::Kusa
     end
 
     no_commands do
+      def load_config(path=options[:config])
+        YAML.load_file(path)
+      end
+
       def parse_and_summarize
         summarize(parse(Apt::History::FILEPATH, options[:all]))
       end
