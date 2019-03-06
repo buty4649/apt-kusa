@@ -19,6 +19,10 @@ module Apt::Kusa
 
     option :all,   type: :boolean, default: false
     option :graph, type: :string,  required: true
+    option :graph_name,  type: :string, default: "Count of install or upgrade packages"
+    option :graph_unit,  type: :string, default: "packages"
+    option :graph_color, type: :string, default: "shibafu", enum: %w(shibafu momiji sora ichou ajisai)
+    option :graph_tz,    type: :string, default: "UTC"
     option :create,type: :boolean, default: false
     desc "post", "Post to pixe.la"
     def post
@@ -38,7 +42,13 @@ module Apt::Kusa
       client = Pixela::Client.new(username: username, token: token)
       graph = client.graph(options[:graph])
       if options[:create]
-        graph.create(name:"Count of package install/upgrade", unit:"commit", type:"int", color:"shibafu")
+        graph.create(
+          type: "int",
+          name: options[:graph_name],
+          unit: options[:graph_unit],
+          color: options[:graph_color],
+          timezone: options[:graph_tz]
+        )
       end
 
       summary.each do |date, count|
